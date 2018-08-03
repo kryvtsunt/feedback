@@ -33,16 +33,16 @@ class Feedback:
         self.frame_content = ttk.Frame(master)
         self.frame_content.pack()
 
-        ttk.Label(self.frame_content, text = 'Email:').grid(row = 0, column = 0, padx = 5, sticky = 'sw')
-        ttk.Label(self.frame_content, text = 'Password:').grid(row = 0, column = 1, padx = 5, sticky = 'sw')
+        ttk.Label(self.frame_content, text = 'Name:').grid(row = 0, column = 0, padx = 5, sticky = 'sw')
+        ttk.Label(self.frame_content, text = 'Email:').grid(row = 0, column = 1, padx = 5, sticky = 'sw')
         ttk.Label(self.frame_content, text = 'Comments:').grid(row = 2, column = 0, padx = 5, sticky = 'sw')
 
+        self.entry_name = ttk.Entry(self.frame_content, width = 24, font = ('Arial', 10))
         self.entry_email = ttk.Entry(self.frame_content, width = 24, font = ('Arial', 10))
-        self.entry_password = ttk.Entry(self.frame_content, width = 24, font = ('Arial', 10))
         self.text_comments = Text(self.frame_content, width = 50, height = 10, font = ('Arial', 10))
 
-        self.entry_email.grid(row = 1, column = 0, padx = 5)
-        self.entry_password.grid(row = 1, column = 1, padx = 5)
+        self.entry_name.grid(row = 1, column = 0, padx = 5)
+        self.entry_email.grid(row = 1, column = 1, padx = 5)
         self.text_comments.grid(row = 3, column = 0, columnspan = 2, padx = 5)
 
         ttk.Button(self.frame_content, text = 'Submit',
@@ -52,22 +52,29 @@ class Feedback:
 
 
     def submit(self):
+        print('Name: {}'.format(self.entry_name.get()))
         print('Email: {}'.format(self.entry_email.get()))
-        print('Password: {}'.format(self.entry_password.get()))
         print('Comments: {}'.format(self.text_comments.get(1.0, 'end')))
-        # msg = EmailMessage()
-        # msg['Subject'] = 'Feedback'
-        # msg['From'] = self.entry_email
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.ehlo()
-        server.starttls()
-        server.login(self.entry_email.get(), self.entry_password.get())
-        server.sendmail(self.entry_email.get(), "timbo.timberman@gmail.com", self.text_comments)
-        server.send_message(self.text_comments)
-        server.quit()
-        self.clear()
-        messagebox.showinfo(title = 'Feedback', message = 'Comments Submitted!')
 
+        msg = "\r\n".join([
+        "From: {}".format(self.entry_email.get()),
+        "To: timbo.timberman@gmail.com",
+        "Subject: Feedback from {}".format(self.entry_name.get()),
+        "",
+        self.text_comments.get(1.0, 'end')
+        ])
+
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.ehlo()
+            server.starttls()
+            server.login('timbo.timberman@gmail.com', 'mydgfnpanqmfydhf')
+            server.sendmail(self.entry_email.get(), "timbo.timberman@gmail.com", msg)
+            server.close()
+            self.clear()
+            messagebox.showinfo(title = 'Feedback', message = 'We got your feedback!')
+        except:
+            messagebox.showinfo(title = 'Feedback', message = 'Something went wrong!')
 
     def clear(self):
         self.entry_name.delete(0, 'end')
