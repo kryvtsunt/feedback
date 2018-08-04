@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 import smtplib
-from email.message import EmailMessage
+from email.mime.text import MIMEText
 
 
 
@@ -52,27 +52,37 @@ class Feedback:
 
 
     def submit(self):
-        print('Name: {}'.format(self.entry_name.get()))
-        print('Email: {}'.format(self.entry_email.get()))
-        print('Comments: {}'.format(self.text_comments.get(1.0, 'end')))
+        email='timbo.timberman@gmail.com'
+        password='mydgfnpanqmfydhf'
+        email2= self.entry_email.get()
+        name=self.entry_name.get()
 
-        msg = "\r\n".join([
-        "From: {}".format(self.entry_email.get()),
-        "To: timbo.timberman@gmail.com",
-        "Subject: Feedback from {}".format(self.entry_name.get()),
-        "",
-        self.text_comments.get(1.0, 'end')
-        ])
+        subject="Feedback from " + self.entry_name.get()
+        message= self.text_comments.get(1.0, 'end')
+
+        subject2="Feedback"
+        message2= "Dear {},<br/><br/>We received your feedback. Thank you for staying in touch.<br/><br/>Best regards, Administration<br/>".format(name)
+
+        msg=MIMEText(message, 'html')
+        msg['Subject']=subject
+        msg['To']=email
+        msg['From']=email2
+
+        msg2=MIMEText(message2, 'html')
+        msg2['Subject']=subject2
+        msg2['To']=email2
+        msg2['From']=email
 
         try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.ehlo()
-            server.starttls()
-            server.login('timbo.timberman@gmail.com', 'mydgfnpanqmfydhf')
-            server.sendmail(self.entry_email.get(), "timbo.timberman@gmail.com", msg)
-            server.close()
+            gmail=smtplib.SMTP('smtp.gmail.com',587)
+            gmail.ehlo()
+            gmail.starttls()
+            gmail.login(email, password)
+            gmail.send_message(msg)
+            gmail.send_message(msg2)
+            gmail.close()
             self.clear()
-            messagebox.showinfo(title = 'Feedback', message = 'We got your feedback!')
+            messagebox.showinfo(title = 'Feedback', message = 'You feedack was successfuly sent!')
         except:
             messagebox.showinfo(title = 'Feedback', message = 'Something went wrong!')
 
