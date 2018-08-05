@@ -5,7 +5,6 @@ import smtplib
 from email.mime.text import MIMEText
 
 
-
 class Feedback:
 
     def __init__(self, master):
